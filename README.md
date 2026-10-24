@@ -72,7 +72,7 @@ Ansys processes never sit on your licence.
 
 **Claude Code** (connector and skills):
 ```
-/plugin marketplace add PrachishD/Claude-ANSYS-connector
+/plugin marketplace add PrachishD/Claude-ANSYS-skill
 /plugin install ansys-connector@ansys-connector
 ```
 Then ask *"Check my Ansys setup"*. Claude runs `ansys_status` and reports the install and licence it found.
@@ -85,7 +85,7 @@ CAD and optimisation need one extra download (CadQuery + gmsh): ask Claude to ru
   "mcpServers": {
     "ansys": {
       "command": "uv",
-      "args": ["run", "--directory", "/path/to/Claude-ANSYS-connector/server", "ansys-connector"]
+      "args": ["run", "--directory", "/path/to/Claude-ANSYS-skill/server", "ansys-connector"]
     }
   }
 }
@@ -140,7 +140,7 @@ and contributions of runs are welcome.
   the standard install folders.
 - **Python 3.12+** and **[uv](https://docs.astral.sh/uv/)** (`pip install uv`). Dependencies install on first start.
 - **Platform:** Windows is tested. Linux should work for MAPDL, Mechanical and Fluent; Workbench automation is Windows-first.
-- **Windows paths:** keep the clone in a short path (e.g. `C:\dev\Claude-ANSYS-connector`) or
+- **Windows paths:** keep the clone in a short path (e.g. `C:\dev\Claude-ANSYS-skill`) or
   [enable long paths](https://learn.microsoft.com/windows/win32/fileio/maximum-file-path-limitation).
 
 | Optional variable | Purpose |
