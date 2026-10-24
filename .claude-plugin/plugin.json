@@ -1,0 +1,23 @@
+{
+  "name": "ansys-connector",
+  "version": "0.2.0",
+  "description": "Unofficial connector that lets Claude drive locally installed Ansys products: Mechanical APDL, Mechanical, Fluent and Workbench. Includes verified skills for structural, modal, buckling, thermal, dynamic and CFD analyses.",
+  "license": "MIT",
+  "keywords": [
+    "ansys",
+    "mapdl",
+    "mechanical",
+    "fluent",
+    "workbench",
+    "fea",
+    "cfd",
+    "simulation",
+    "engineering"
+  ],
+  "author": {
+    "name": "PrachishD",
+    "url": "https://github.com/PrachishD"
+  },
+  "homepage": "https://github.com/PrachishD/Claude-ANSYS-connector",
+  "repository": "https://github.com/PrachishD/Claude-ANSYS-connector"
+}
