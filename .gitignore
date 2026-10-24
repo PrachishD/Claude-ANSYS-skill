@@ -1,0 +1,26 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Ansys solver output (runs belong in ~/ansys_runs, never in the repo)
+*.trn
+*.db
+*.rst
+*.rth
+*.full
+*.esav
+*.emat
+*.mode
+*.mlv
+*.err
+*.log
+*.out
+*.DSP
+*.mntr
+*.lock
+*.page
+*.cas.h5
+*.dat.h5
+*_files/
+*.wbpj
