@@ -1,0 +1,24 @@
+[project]
+name = "ansys-connector"
+version = "0.2.0"
+description = "Unofficial MCP connector that lets Claude drive locally installed Ansys products (MAPDL, Mechanical, Fluent, Workbench)"
+requires-python = ">=3.12"
+dependencies = [
+    "ansys-mapdl-core>=0.70",
+    "ansys-mechanical-core>=0.13",
+    "ansys-fluent-core>=0.40",
+    "ansys-workbench-core>=0.14",
+    "mcp>=2.3",
+    "psutil>=5.9",
+    "pywin32>=306; sys_platform == 'win32'",
+]
+
+[project.scripts]
+ansys-connector = "ansys_connector.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ansys_connector"]
