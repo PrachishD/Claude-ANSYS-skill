@@ -1,6 +1,6 @@
 ---
 name: fluent-cfd
-description: Run CFD in Ansys Fluent through the ansys connector (PyFluent). Covers loading meshes/cases, physics models, materials, boundary conditions, solving to convergence, report definitions, contour images and saving case/data, plus conservation checks. Use for fluid flow, pressure drop, flow rates, mixing, convective heat transfer, internal or external aerodynamics, or any request mentioning Fluent or CFD.
+description: Run CFD in Ansys Fluent through the ansys connector (PyFluent). Covers building a fluid domain from CAD and meshing it (cfd_mesh), loading meshes/cases, physics models, materials, boundary conditions, solving to convergence, report definitions, contour images and saving case/data, plus conservation checks. Use for fluid flow, pressure drop, flow rates, mixing, convective heat transfer, internal or external aerodynamics, or any request mentioning Fluent or CFD.
 ---
 
 # CFD with Fluent
@@ -18,17 +18,26 @@ A call returns:
 
 Read those warnings: reversed flow, divergence, "Error:". Use `verbose=True` only when debugging.
 
-## 1. Mesh or case
+## 1. Geometry and mesh
 
-```python
-solver.settings.file.read_case(file_name=r"C:\path\part.msh.h5")   # .msh/.msh.h5/.cas.h5
-solver.settings.mesh.check()          # read the transcript: negative volumes are fatal
-```
-- If there's no mesh:
-  - Fluent meshing: `fluent_start(mode="meshing")`, then the watertight workflow (`meshing.workflow`), then `meshing.switch_to_solver()`.
-  - Or a Workbench "Fluid Flow (Fluent)" system with geometry plus meshing.
-  - Keep cell counts under **1M on Ansys Student**.
-- Ask what the units of the mesh are. If they aren't metres: `solver.settings.mesh.scale(x_scale=0.001, y_scale=0.001, z_scale=0.001)`.
+**If the user has a mesh or case file**, read it with `solver.settings.file.read_case(file_name=...)` (`.msh`, `.msh.h5`, `.cas.h5`).
+
+**Otherwise, build the fluid domain from CAD with `cfd_mesh`** (CadQuery; call `cad_install` once if CAD support is missing):
+1. **Model the fluid, not the part:** the space the fluid fills, such as the bore of a pipe or the channel around a body (`box.cut(body)`). Units are mm.
+2. **Call `cfd_mesh(script)` without boundaries.** You get the face table and a labelled picture; pick the inlet and outlet faces by type, centre and normal.
+3. **Call `cfd_mesh(script, boundaries=[{"name": "inlet", "type": "velocity-inlet", "faces": [2]}, {"name": "outlet", "type": "pressure-outlet", "faces": [3]}], mesh_size=..., wall_size=...)`.** Every face you don't list becomes `wall`. The mesh is written in **metres** in Fluent's native format, with the zone names you gave.
+4. **Load and check the mesh:** in `fluent_run`, call `solver.settings.file.read_case(file_name=<msh_file>)`, then `solver.settings.mesh.check()`. Negative volumes or left-handed faces are fatal.
+
+Mesh guidance:
+- Linear tets with **wall refinement**: set `wall_size` to about 1/3 of `mesh_size`, and `growth_distance` to about 2–3 wall sizes.
+- There are no prism boundary layers, so laminar flow and wall-function turbulence models are fine. For y+ ≈ 1 turbulence, use Fluent meshing's watertight workflow or a Workbench Fluid Flow system instead.
+- Keep cell counts under **1M on Ansys Student**.
+
+Pitfalls the tests uncovered:
+- **CGNS mesh import:** don't use it. Fluent's CGNS importer segfaults intermittently on gmsh meshes, which is why `cfd_mesh` writes native `.msh`.
+- **Initialise only after the boundary types are set.** On a domain that is still all walls, hybrid initialisation can crash Fluent.
+- **`report_definitions.compute` stays inactive until the solution is initialised.**
+- **Mesh units:** check them before anything else. Compute the area of the inlet surface (`surface-area` report after initialising) and compare it with the CAD.
 
 ## 2. Physics (verified on the mixing-elbow benchmark)
 
@@ -71,6 +80,10 @@ Converged means **all** of the following:
 - The reported quantities of interest have stopped changing. Iterate another 50–100 and compare.
 - The mass imbalance (net `mdot`) is under 0.1% of the throughput. Energy imbalance is likewise small.
 
+For low-Reynolds laminar flow, set `solver.settings.solution.methods.p_v_coupling.flow_scheme = "Coupled"` and second-order momentum. Watch the quantity you report while iterating more, not just the residuals.
+
+Peak values: read maxima with `surface-vertexmax`. `surface-facetmax` averages over faces and under-reads peaks by a few percent.
+
 If residuals stall or oscillate:
 - Check mesh quality.
 - Lower the under-relaxation.
@@ -100,6 +113,11 @@ solver.settings.file.write(file_type="case-data", file_name=workdir + r"\study.c
    - laminar pipe: Δp = 128μLQ/(πD⁴)
    - heat transfer: Dittus–Boelter Nu = 0.023 Re^0.8 Pr^0.4
    - drag: published Cd
+   - Connector validation on a CAD → `cfd_mesh` → Fluent laminar pipe (Re = 100):
+     - **Mass balance:** exact.
+     - **Pressure drop:** +6 % vs Hagen–Poiseuille, on both coarse and refined meshes.
+     - **Centreline velocity:** −2 %.
+   - Because that pressure-drop offset didn't shrink with refinement, treat ~5 % on tet meshes as the expected agreement and say so. For tighter numbers, use a structured or prism-layer mesh.
 3. **Mesh independence:** refine globally (or adapt near gradients), re-solve, and confirm the key outputs change by less than about 2–5%.
 4. **Wall treatment:** for SST k-ω, wall y+ ≈ 1 resolves the boundary layer; with wall functions use 30–300. Check with a `surface-areaavg` report of `y-plus` on walls.
 

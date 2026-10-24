@@ -6,8 +6,11 @@ from pathlib import Path
 
 from mcp.server.mcpserver import Image
 
-from . import fluent, mapdl, mechanical, workbench
+from . import design, fluent, mapdl, mechanical, report, workbench
 from .common import default_workdir, find_install, is_student, mcp, start_watchdog, tool
+
+# Importing a module registers its tools on `mcp`.
+TOOL_MODULES = (design, fluent, mapdl, mechanical, report, workbench)
 
 
 @tool

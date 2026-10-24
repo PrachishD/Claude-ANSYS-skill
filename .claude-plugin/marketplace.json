@@ -1,11 +1,14 @@
 {
   "name": "ansys-connector",
-  "owner": { "name": "PrachishD", "url": "https://github.com/PrachishD" },
+  "owner": {
+    "name": "PrachishD",
+    "url": "https://github.com/PrachishD"
+  },
   "plugins": [
     {
       "name": "ansys-connector",
       "source": "./",
-      "description": "Unofficial Claude connector for Ansys MAPDL, Mechanical, Fluent and Workbench"
+      "description": "FEA + CFD in your own Ansys install: MAPDL, Mechanical, Fluent, Workbench, CAD, optimisation, reports"
     }
   ]
 }

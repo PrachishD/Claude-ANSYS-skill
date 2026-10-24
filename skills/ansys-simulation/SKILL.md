@@ -11,7 +11,9 @@ You make the engineering decisions and write the solver input. The connector onl
 |---|---|
 | Geometry you can build from primitives; fast and exact | **MAPDL** (`mapdl_run`): `static-structural`, `modal-analysis`, `buckling-analysis`, `thermal-analysis`, `dynamic-response` |
 | User has CAD (STEP/IGES/Parasolid) or wants a Workbench project | **Workbench + Mechanical**: `workbench-mechanical` |
-| Fluid flow or CFD | **Fluent**: `fluent-cfd` |
+| Fluid flow or CFD (with or without CAD) | **Fluent**: `fluent-cfd` (`cfd_mesh` builds the fluid mesh from CAD) |
+| Optimise a design: lighter, stiffer, or meeting targets | `design-optimization` |
+| Write up a finished study | `engineering-report` (`report_create`) |
 
 ## Keep it cheap: every tool call re-sends the whole conversation
 
@@ -30,6 +32,22 @@ You make the engineering decisions and write the solver input. The connector onl
 
 - **Ansys Student:** 128k nodes for structural and thermal; 1M cells for Fluent.
 - **Standalone Mechanical can't solve under the Student license.** Use the Workbench route or MAPDL.
+
+## Pitfalls found in testing
+
+- **APDL:**
+  - Don't chain `/`-commands with `$`; it raises a false error.
+  - Restrain every rigid-body motion; "negative pivot" means something is free.
+- **Lumped masses** (motors, pumps): give them realistic rotary inertia. A point mass over-predicted a sway mode by 19 %.
+- **Mechanical:**
+  - Pick faces relatively (min/max), because centroids are in CAD units.
+  - If a support and a load share a face, you get a perfect reaction and zero deformation; check selections whenever deflection reads 0.
+  - Wrap .NET values in `int()`/`str()` before `json.dumps`.
+  - Never use negative indexing on Mechanical collections.
+- **CAD into MAPDL:** go through `cad_build` (STEP → gmsh); MAPDL's IGES import can't rebuild solids.
+- **Fluent:**
+  - Build fluid meshes with `cfd_mesh` (native `.msh`), not CGNS import.
+  - Set the boundary types before initialising.
 
 ## Verify before reporting
 

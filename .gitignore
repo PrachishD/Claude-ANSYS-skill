@@ -25,3 +25,8 @@ __pycache__/
 *.dat.h5
 *_files/
 *.wbpj
+
+# Eval run output (per-user approval state, work folders, transcripts)
+.claude/hillclimb/**/work/
+**/traces/
+.claude/hillclimb/**/_state.json

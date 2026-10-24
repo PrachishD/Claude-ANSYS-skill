@@ -1,17 +1,22 @@
 {
   "name": "ansys-connector",
-  "version": "0.2.0",
-  "description": "Unofficial connector that lets Claude drive locally installed Ansys products: Mechanical APDL, Mechanical, Fluent and Workbench. Includes verified skills for structural, modal, buckling, thermal, dynamic and CFD analyses.",
+  "version": "0.3.0",
+  "description": "Run FEA and CFD in your own Ansys install from plain English: Mechanical APDL, Mechanical, Fluent and Workbench, plus parametric CAD, design optimisation and engineering reports. Skills verified against textbook solutions. Unofficial; works with Ansys Student.",
   "license": "MIT",
   "keywords": [
     "ansys",
-    "mapdl",
-    "mechanical",
-    "fluent",
-    "workbench",
     "fea",
     "cfd",
+    "fluent",
+    "mapdl",
+    "mechanical",
+    "workbench",
     "simulation",
+    "cad",
+    "optimization",
+    "structural",
+    "thermal",
+    "modal",
     "engineering"
   ],
   "author": {
